@@ -56,22 +56,25 @@ namespace AplicacionUber
 
                         ResultadoRuta ruta = g.BuscarRuta3Niveles(origenRuta, destinoRuta);
 
-                        if (ruta.Encontrado) {
+                        if (ruta.Encontrado)
+                        {
                             Console.WriteLine($"Distancia Total: {ruta.DistanciaKm} km");
                             Console.WriteLine($"Tiempo Total: {ruta.TiempoMin} min");
                         }
-                        else {
+                        else
+                        {
                             Console.WriteLine("No existe ruta hasta tercer nivel");
                         }
                         break;
                     case 7:
-                        Console.Write("Origen: "); 
+                        Console.Write("Origen: ");
                         int origenViaje = Convert.ToInt32(Console.ReadLine());
                         Console.Write("Destino: ");
                         int destinoViaje = Convert.ToInt32(Console.ReadLine());
                         ResultadoRuta viaje = g.BuscarRuta3Niveles(origenViaje, destinoViaje);
 
-                        if (!viaje.Encontrado) {
+                        if (!viaje.Encontrado)
+                        {
                             Console.WriteLine("La carrera supera los 3 niveles");
                             break;
                         }
@@ -105,7 +108,8 @@ namespace AplicacionUber
 
                         Carro taxi = gestor.ObtenerCarro(posTaxi);
 
-                        if (taxi == null) {
+                        if (taxi == null)
+                        {
                             Console.WriteLine("Taxi no válido.");
                             break;
                         }
