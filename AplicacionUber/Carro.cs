@@ -26,7 +26,7 @@ namespace AplicacionUber
             Console.WriteLine($"Placa: {Placa}");
             Console.WriteLine($"Color: {Color}");
             Console.WriteLine($"Tipo: {Tipo}");
-            if (Tipo.ToUpper() == "TAXI") {
+            if (Tipo == "TAXI") {
                 Console.WriteLine($"SolesxMin: {Solesxmin}");
                 Console.WriteLine($"Vértice: {Vertice}");
             }

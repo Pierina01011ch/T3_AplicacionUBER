@@ -8,15 +8,17 @@ namespace AplicacionUber
 {
     internal class GrafoNDP
     {
-        private ListaAdy[] lista;
+        private ListaVert vertices;
         private int cantVertices;
         public GrafoNDP(int cantVertices)
         {
             this.cantVertices = cantVertices;
-            lista = new ListaAdy[cantVertices];
-            for (int i=0; i<cantVertices;i++)
+
+            vertices = new ListaVert();
+
+            for (int i = 0; i < cantVertices; i++)
             {
-                lista[i] = new ListaAdy();
+                vertices.AgregarVertice(i);
             }
         }
         public int ObtenerCantVertices()
@@ -25,7 +27,14 @@ namespace AplicacionUber
         }
         public ListaAdy ObtenerLista(int vertice)
         {
-            return lista[vertice];
+            NodoVert v = vertices.BuscarVertice(vertice);
+
+            if (v != null)
+            {
+                return v.Adyac;
+            }
+
+            return null;
         }
         public bool VerificarValido(int v)
         {
@@ -33,27 +42,44 @@ namespace AplicacionUber
         }
         public bool HayArista(int origen, int destino)
         {
-            return lista[origen].HayConexion(destino);
+            NodoVert v = vertices.BuscarVertice(origen);
+
+            if (v == null) {
+                return false;
+            }
+
+            return v.Adyac.HayConexion(destino);
         }
         public void AgregarArista(int origen, int destino, double distanciaKm, int tiempoMin)
         {
-            if (!VerificarValido(origen)||!VerificarValido(destino)) {
+            NodoVert vo =
+        vertices.BuscarVertice(origen);
+
+            NodoVert vd = vertices.BuscarVertice(destino);
+
+            if (vo == null || vd == null) {
                 Console.WriteLine("Vértices no válidos");
                 return;
             }
-            if (lista[origen].HayConexion(destino)) {
+
+            if (vo.Adyac.HayConexion(destino)) {
                 Console.WriteLine("La arista ya existe");
                 return;
             }
-            lista[origen].Agregar(destino, distanciaKm, tiempoMin);
-            lista[destino].Agregar(origen, distanciaKm, tiempoMin);
+
+            vo.Adyac.Agregar(destino, distanciaKm, tiempoMin);
+            vd.Adyac.Agregar(origen, distanciaKm, tiempoMin);
             Console.WriteLine("Arista añadida");
         }
         public void Mostrar()
         {
-            for (int i=0; i<cantVertices;i++) {
-                Console.Write($"Vértice {i}: ");
-                lista[i].Mostrar();
+            NodoVert actual = vertices.ObtenerPrimero();
+
+            while (actual != null)
+            {
+                Console.Write($"Vértice {actual.Id}: ");
+                actual.Adyac.Mostrar();
+                actual = actual.Siguiente;
             }
         }
         public void BuscarHastaNivel2(int origen, GestorCarros gestor)
@@ -63,28 +89,34 @@ namespace AplicacionUber
                 Console.WriteLine("Vértice no válido");
                 return;
             }
+
             bool[] visitado = new bool[cantVertices];
+
             visitado[origen] = true;
-            Console.WriteLine("Nivel 0: ");
+
+            Console.WriteLine("Nivel 0:");
             gestor.MostrarTaxisEnVertice(origen);
-            ListaAdy listaOrigen = lista[origen];
+
+            ListaAdy listaOrigen = ObtenerLista(origen);
+
             NodoAdy actual = listaOrigen.ObtenerPrimero();
 
-            while (actual!=null)
+            while (actual != null)
             {
                 int vec = actual.Destino;
+
                 if (!visitado[vec])
                 {
                     visitado[vec] = true;
                     Console.WriteLine($"Nivel 1 - Vértice {vec}");
                     gestor.MostrarTaxisEnVertice(vec);
-                    NodoAdy actual2 = lista[vec].ObtenerPrimero();
+                    NodoAdy actual2 = ObtenerLista(vec).ObtenerPrimero();
 
-                    while (actual2!=null)
+                    while (actual2 != null)
                     {
                         int vec2 = actual2.Destino;
-                        if (!visitado[vec2])
-                        {
+
+                        if (!visitado[vec2]) {
                             visitado[vec2] = true;
                             Console.WriteLine($"Nivel 2 - Vértice {vec2}");
                             gestor.MostrarTaxisEnVertice(vec2);
@@ -98,44 +130,43 @@ namespace AplicacionUber
         public ResultadoRuta BuscarRuta3Niveles(int origen, int destino)
         {
             ResultadoRuta r = new ResultadoRuta();
-            if (!VerificarValido(origen)||!VerificarValido(destino)) {
+
+            if (!VerificarValido(origen) || !VerificarValido(destino)) {
                 return r;
             }
-            NodoAdy directo = lista[origen].BuscarNodo(destino);
 
-            if (directo != null)
-            {
+            NodoAdy direc = ObtenerLista(origen).BuscarNodo(destino);
+
+            if (direc != null) {
                 r.Encontrado = true;
-                r.DistanciaKm = directo.DistanciaKm;
-                r.TiempoMin = directo.TiempoMin;
-
+                r.DistanciaKm = direc.DistanciaKm;
+                r.TiempoMin = direc.TiempoMin;
                 return r;
             }
 
-            NodoAdy actual1 = lista[origen].ObtenerPrimero();
+            NodoAdy actual1 = ObtenerLista(origen).ObtenerPrimero();
 
             while (actual1 != null)
             {
-                int v1 =
-                    actual1.Destino;
+                int v1 = actual1.Destino;
 
-                NodoAdy nivel2 = lista[v1].BuscarNodo(destino);
+                NodoAdy nivel2 = ObtenerLista(v1).BuscarNodo(destino);
 
-                if (nivel2 != null)
-                {
+                if (nivel2 != null) {
                     r.Encontrado = true;
                     r.DistanciaKm = actual1.DistanciaKm + nivel2.DistanciaKm;
                     r.TiempoMin = actual1.TiempoMin + nivel2.TiempoMin;
                     return r;
                 }
 
-                NodoAdy actual2 = lista[v1].ObtenerPrimero();
+                NodoAdy actual2 = ObtenerLista(v1).ObtenerPrimero();
 
                 while (actual2 != null)
                 {
                     int v2 = actual2.Destino;
 
-                    NodoAdy nivel3 = lista[v2]
+                    NodoAdy nivel3 =
+                        ObtenerLista(v2)
                         .BuscarNodo(destino);
 
                     if (nivel3 != null)
@@ -145,7 +176,6 @@ namespace AplicacionUber
                         r.TiempoMin = actual1.TiempoMin + actual2.TiempoMin + nivel3.TiempoMin;
                         return r;
                     }
-
                     actual2 = actual2.Siguiente;
                 }
                 actual1 = actual1.Siguiente;
@@ -160,7 +190,7 @@ namespace AplicacionUber
                 return r;
             }
 
-            NodoAdy direc = lista[verticeTaxi].BuscarNodo(origen);
+            NodoAdy direc = ObtenerLista(verticeTaxi).BuscarNodo(origen);
 
             if (direc != null) {
                 r.Encontrado = true;
@@ -169,17 +199,18 @@ namespace AplicacionUber
                 return r;
             }
 
-            NodoAdy actual = lista[verticeTaxi].ObtenerPrimero();
+            NodoAdy actual = ObtenerLista(verticeTaxi).ObtenerPrimero();
 
             while (actual != null)
             {
                 int vec = actual.Destino;
 
                 NodoAdy nivel2 =
-                    lista[vec]
+                    ObtenerLista(vec)
                     .BuscarNodo(origen);
 
-                if (nivel2 != null) {
+                if (nivel2 != null)
+                {
                     r.Encontrado = true;
                     r.DistanciaKm = actual.DistanciaKm + nivel2.DistanciaKm;
                     r.TiempoMin = actual.TiempoMin + nivel2.TiempoMin;

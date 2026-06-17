@@ -30,9 +30,9 @@ namespace AplicacionUber
             nuevo.Color = Console.ReadLine();
 
             Console.Write("Tipo (Taxi/Particular): ");
-            nuevo.Tipo = Console.ReadLine();
+            nuevo.Tipo = Console.ReadLine().ToUpper();
 
-            if (nuevo.Tipo.ToUpper()=="TAXI")
+            if (nuevo.Tipo == "TAXI")
             {
                 Console.Write("SolesxMin: ");
                 nuevo.Solesxmin = Convert.ToDouble(Console.ReadLine());
@@ -58,9 +58,9 @@ namespace AplicacionUber
                 if (carros[i].Placa == placa)
                 {
                     Console.Write("Nuevo tipo (Taxi/Particular): ");
-                    string tipo = Console.ReadLine();
+                    string tipo = Console.ReadLine().ToUpper();
                     carros[i].Tipo = tipo;
-                    if (tipo.ToUpper() == "TAXI")
+                    if (tipo == "TAXI")
                     {
                         Console.Write("solesxmin: ");
                         carros[i].Solesxmin = Convert.ToDouble(Console.ReadLine());
@@ -96,7 +96,7 @@ namespace AplicacionUber
             Random rnd = new Random();
             for (int i=0; i<cantidad;i++)
             {
-                if (carros[i].Tipo.ToUpper() == "TAXI")
+                if (carros[i].Tipo == "TAXI")
                 {
                     carros[i].Vertice = rnd.Next(0, cantVertices);
                 }
@@ -107,18 +107,8 @@ namespace AplicacionUber
         {
             for (int i=0;i<cantidad;i++)
             {
-                if (carros[i].Tipo.ToUpper() == "TAXI" && carros[i].Vertice == vertice)
+                if (carros[i].Tipo == "TAXI" && carros[i].Vertice == vertice)
                     carros[i].Mostrar();
-            }
-        }
-        public void MostrarTaxisDisponibles()
-        {
-            for(int i=0; i < cantidad; i++)
-            {
-                if (carros[i].Tipo.ToUpper() == "TAXI")
-                {
-                    Console.WriteLine($"[{i}] {carros[i].Placa} - " + $"Vértice {carros[i].Vertice}");
-                }
             }
         }
         public int ObtenerCantidad()
